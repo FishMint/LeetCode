@@ -2010,3 +2010,89 @@ public:
 };
 ```
 
+
+
+
+
+
+
+#### [151. 反转字符串中的单词](https://leetcode.cn/problems/reverse-words-in-a-string/)
+
+**思路：**
+
+思路分为两步：
+
+第一步（去除多余空格）：
+
+这一步就是去除多余的空格，比如**开头**和**末尾**的空格， 还有中间多余的空格
+
+直接使用双指针法，分为三次循环，
+
+- 第一次将fast指针，移动到第一个非空格字母的位置
+
+- 第二次，用fast指针将字符送到slow指针处，如果fast和fast-1都是空格，说明fast指着多余空格，那就不管，fast++
+- 第三次就是判断，去除完多余空格的字符串的最后一个是不是空格，是就resize（ size - 1），不是就resize（size）。
+
+第二步（反转每个单词）：
+
+这个的目的就是反转每个单词，这里的思路就是
+
+1、全部反转 。 2、 按照空格隔开的，一个个反转。  3、最后一个单词反转
+
+
+
+**代码：**
+
+```c++
+class Solution {
+public:
+    //删除s中多出来的空格
+    void remove_ext_spcaes(string &s){
+        int  fast_p = 0, slow_p = 0;
+
+        //1,首先移除前面的空格
+        //其实就是fast_p向后移动
+        for(; s[fast_p] == ' '; fast_p++);
+
+        //2,使用双指针法移除多余的空格
+        //去掉中间多余空格
+        //形式(- 代表空格) w-w-w-w or w-w-w-w-
+        for (; fast_p < s.size(); fast_p++) {
+            //判断fast_p是不是多余空格
+            if(s[fast_p] == ' '
+            && s[fast_p] == s[fast_p - 1]) {
+                continue;
+            }
+
+            s[slow_p++] = s[fast_p];
+        }
+        
+        //3,移除最后的空格
+        if(s[slow_p - 1] != ' ')
+            s.resize(slow_p);
+        else
+            s.resize(slow_p - 1);
+    }
+
+    string reverseWords(string s) {
+        remove_ext_spcaes(s);
+        reverse(s.begin(), s.end());
+        
+        int start = 0;
+
+        //反转中间的words
+        for(int i = 0; i < s.size(); i++) {
+            if (s[i] == ' ') {
+                reverse(s.begin() + start, s.begin() + i);
+                start = i + 1;
+            }
+        }
+
+        //反转最后一个word
+        reverse(s.begin() + start, s.end());
+
+        return s;
+    }
+};
+```
+
