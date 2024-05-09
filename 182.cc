@@ -14,6 +14,7 @@ public:
     }
 };
 
+
 int main(void){
 	Solution s;
 	cout<< s.dynamicPassword("s3cur1tyC0d3", 4)<<endl;
