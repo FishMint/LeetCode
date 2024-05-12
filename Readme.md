@@ -2096,3 +2096,145 @@ public:
 };
 ```
 
+
+
+
+
+
+
+#### [LCR 181. 字符串中的单词反转](https://leetcode.cn/problems/fan-zhuan-dan-ci-shun-xu-lcof/)
+
+**思路：**
+
+其实就是分三步：
+
+1. 第一步整体反转，
+
+2. 第二步 1 ---  （size - target） 反转
+
+3. 第三步  （size - target + 1） ----  size 反转
+
+
+
+**代码：**
+
+```c++
+class Solution {
+public:
+    string dynamicPassword(string password, int target) {
+        reverse(password.begin(), password.end());
+        reverse(password.begin(), password.end() - target);
+        reverse(password.end() - target, password.end());
+        return password;
+    }
+};
+```
+
+
+
+
+
+#### [28. 找出字符串中第一个匹配项的下标](https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+
+
+
+**思路：**
+
+long = "abcxxx" , short =“abc”
+
+首先就是直接使用KMP算法，算出short 的 next的前缀表。
+
+然后通过一个指针指long ， 一个指针指short
+
+如果long 和 short 中 有某个不一样，那就long不动， short通过while不断的回退（用next）
+
+1. 要么回退到 == 的情况，直接 使用下面的if处理
+2. 要么就是回退到 index = 0的地方，重新比较，还是会通过 下面的if处理 （short 的指针  ---------   一样++  ,   不一样还是不动）
+
+
+
+**重点讲next的表怎么计算**
+
+最好看一遍 [KMP 的  视频](https://www.bilibili.com/video/BV1AY4y157yL/?spm_id_from=333.337.search-card.all.click&vd_source=dcbd43b5b3fde2ff2f70a291ba0e90ef)
+
+其实就是next数组就是再对应的地方的**最长相同前后缀**
+
+比如  “aabaaf”
+
+index = 0 ， 没有比这个更短的了                             						      **0** 
+
+index = 1 ， 串 = “aa”      前缀 a， 后缀 a，         								 **1**
+
+> ↑（这两个a一个是前面的，一个是后面的）
+
+index = 2  串 = “aab”， 前缀 a, aa , 后缀 ab，b 没有一样的 		      **0**
+
+index = 3 串 = “aaba”， 前缀a, aa, aab,  后缀 a, ba, aba ，最长是   **1**  
+
+。。。。。。
+
+
+
+**代码：**
+
+```c++
+class Solution {
+public:
+    //计算next表
+    void get_next(string &s, int *next) {
+        int left = 0, right = 1;
+
+        //初始化这俩因为 idx = 0 or 1 错了,都要回到第0个开始比较
+        next[0] = 0;
+        for(; right < s.size(); right++) {
+            // 分两种情况：相同，不同
+
+            //1,不同,通过while，找到比当前后缀小一点的继续比较
+            while (left > 0 && s[left] != s[right])
+            {
+                left = next[left - 1];
+            }
+
+            // 2,相等,最长前后缀+1
+            if(s[left] == s[right]) {
+                left++;
+                next[right] = left;
+                continue;
+            }
+
+            //这里是如果 不同的while出来， left = 0 且 两个还是不同
+            //直接给0
+            next[right] = 0;
+        }
+    }
+
+    int strStr(string haystack, string needle) {
+        int next[needle.size()];
+        int i = 0, j = 0;
+        get_next(needle, next);
+
+        for(; i < haystack.size(); i++) {
+            //如果不一样，就回退到next[j - 1],
+            //在不一样再回退
+            while(j != 0 && haystack[i] != needle[j]) {
+                j = next[j - 1];
+            }
+
+            //相同就j++后移
+            if(haystack[i] == needle[j]) {
+                j++;
+            }
+
+            //如果匹配完了
+            if(j == needle.size()) {
+                return i - j + 1;
+            }
+        }
+
+        //到这里说明一直是没有跳到for里面的匹配上的地方的
+        return -1;
+
+    }
+};
+```
+
