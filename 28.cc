@@ -62,6 +62,7 @@ public:
     }
 };
 
+
 int main(void) {
     Solution s;
     string str = "sadbutsad";
